@@ -1,0 +1,38 @@
+@page "/calldotnet"
+@inject IJSRuntime JsRuntime
+<h3>CallDotNet</h3>
+
+<p>
+    <label>
+        Name: <input type="text" @bind="Name" />
+    </label>
+</p>
+
+<p>
+    <button @onclick="CallJs">Call .NET</button>
+</p>
+
+<p>
+    @Result
+</p>
+
+@code {
+    private string? Name { get; set; }
+    private string? Result { get; set; }
+
+    private DotNetObjectReference<CallDotNet>? _objectReference;
+
+    public DotNetObjectReference<CallDotNet> ObjectReference => _objectReference ??= DotNetObjectReference.Create(this);
+
+    [JSInvokable("CallDotNet.SetResult")]
+    public void SetResult(string result)
+    {
+        Result = result;
+        StateHasChanged();
+    }
+
+    private async Task CallJs()
+    {
+        await JsRuntime.InvokeVoidAsync("Murkel.callDotNet", ObjectReference, Name);
+    }
+}
